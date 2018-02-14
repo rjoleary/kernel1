@@ -12,8 +12,8 @@ all: kernel.elf
 kernel.elf: ${S_FILES}
 	${AS} $^ -o $@
 
-src/%.s: src/%.rs
-	${RUSTC} -O --emit asm $< -o $@
+${S_FILES}: ${RS_FILES}
+	${RUSTC} -O --emit asm src/start.rs -o $@
 
 run: kernel.elf
 	${QEMU} --machine virt --kernel $< --nographic

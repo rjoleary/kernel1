@@ -1,19 +1,28 @@
 #![feature(core_intrinsics)]
 #![feature(lang_items, start)]
+#![feature(asm)]
 #![no_std]
 #![no_main]
 use core::intrinsics;
 
 mod uart;
-use uart::putc;
+mod task;
+mod scheduler;
+mod main;
+mod halt;
 
 #[start]
 #[no_mangle]
 pub fn start(_argc: isize, _argv: *const *const u8) -> isize {
-    for &i in b"0123456789" {
-        putc(i);
+    for &x in b"start\r\n" {
+        uart::putc(x);
     }
-    0
+
+    // Setup init task.
+    let init = task::TaskDescriptor{tid: 1};
+    let scheduler = scheduler::Scheduler::new(&init);
+
+    main::main_loop(&scheduler);
 }
 
 #[lang = "eh_personality"]
