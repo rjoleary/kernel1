@@ -1,15 +1,22 @@
+AS := /usr/bin/arm-none-eabi-as
+RUSTC := rustc --target=arm-unknown-linux-gnueabihf
+QEMU := qemu-system-arm
+
+RS_FILES := $(wildcard src/*.rs)
+S_FILES := src/start.s
+
 .PHONY: build run clean
 
-build: main
+all: kernel.elf
 
-main: src/main.s
-	/usr/bin/arm-none-eabi-as src/main.s -o main
+kernel.elf: ${S_FILES}
+	${AS} $^ -o $@
 
-src/main.s: src/main.rs
-	rustc --target=arm-unknown-linux-gnueabihf -O --emit asm src/main.rs -o src/main.s
+src/%.s: src/%.rs
+	${RUSTC} -O --emit asm $< -o $@
 
-run: main
-	qemu-system-arm --machine virt --kernel main --nographic
+run: kernel.elf
+	${QEMU} --machine virt --kernel $< --nographic
 
 clean:
-	rm -f main.s main
+	rm -f src/*.s kernel.elf
