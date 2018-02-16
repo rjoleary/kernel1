@@ -1,5 +1,4 @@
 use core::intrinsics::transmute;
-use core::intrinsics;
 use uart;
 use main;
 
